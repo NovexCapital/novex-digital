@@ -45,49 +45,40 @@ const automationSteps = [
   "Follow-ups can be triggered automatically",
 ];
 
-const caseStudies = [
-  {
-    industry: "Salon & Barber Demo",
-    headline: "Turn missed DMs into booked appointments",
-    before: "Customers ask about prices, availability, and location but wait too long for a reply.",
-    after: "The AI assistant answers instantly, captures the service needed, and pushes the client to book on WhatsApp.",
-    result: "More bookings, fewer repetitive replies, faster customer handling.",
-  },
-  {
-    industry: "Plumbing Demo",
-    headline: "Capture urgent jobs before competitors reply",
-    before: "Customers message multiple plumbers and choose whoever replies first.",
-    after: "The AI bot asks for area, problem type, urgency, and photos before sending the lead to you.",
-    result: "Better-qualified leads and faster emergency job response.",
-  },
-  {
-    industry: "Car Dealership Demo",
-    headline: "Qualify buyers automatically on WhatsApp",
-    before: "Sales teams manually answer price, finance, mileage, and availability questions.",
-    after: "The AI assistant captures the model, budget, finance status, and trade-in details.",
-    result: "Cleaner sales pipeline and better leads for follow-up.",
-  },
-];
 
 const botFlows = {
   services: [
     { from: "bot", text: "Novex Digital builds AI websites, WhatsApp chatbots, and automation systems for growing businesses." },
-    { from: "bot", text: "Our systems help you reply faster, capture more leads, book more clients, and reduce admin work." },
+    { from: "bot", text: "Our most popular system combines a conversion website, WhatsApp entry points, lead capture, and automated follow-up support." },
+    { from: "bot", text: "What type of business do you run? Example: salon, plumbing, car sales, real estate, clinic, or local service business." },
   ],
   pricing: [
     { from: "bot", text: "Our packages start from R1,499 setup + R299/month." },
-    { from: "bot", text: "The most popular option is the AI Growth System at R3,999 setup + R999/month." },
+    { from: "bot", text: "For most businesses, I recommend the AI Growth System at R3,999 setup + R999/month because it includes the website and WhatsApp AI flow." },
+    { from: "bot", text: "Would you like the Starter, Growth, or Automation package?" },
   ],
   booking: [
     { from: "bot", text: "Great. I can help you request a free AI audit." },
-    { from: "bot", text: "Please send your name, business type, and what you want automated. You can also tap the WhatsApp button to message us directly." },
+    { from: "bot", text: "Please send your name, business type, and what you want automated. Then tap the WhatsApp button to send it directly to Novex Digital." },
   ],
   website: [
     { from: "bot", text: "Yes, we build websites that are designed to convert visitors into WhatsApp leads." },
-    { from: "bot", text: "We can include sections, pricing, enquiry forms, chatbot demos, and WhatsApp CTAs." },
+    { from: "bot", text: "Your site can include services, pricing, enquiry forms, a chatbot demo, and strong WhatsApp call-to-action buttons." },
+  ],
+  salon: [
+    { from: "bot", text: "For salons and barbers, we can automate bookings, service questions, pricing, location, operating hours, and reminders." },
+    { from: "bot", text: "Example lead captured: service needed, preferred date, preferred time, name, and WhatsApp number." },
+  ],
+  plumbing: [
+    { from: "bot", text: "For plumbers and electricians, the AI can capture the customer’s area, issue, urgency, photos, and contact number." },
+    { from: "bot", text: "This helps you respond faster and prioritise emergency jobs." },
+  ],
+  cars: [
+    { from: "bot", text: "For car dealerships, the AI can qualify buyers by vehicle interest, budget, finance status, trade-in, and appointment request." },
+    { from: "bot", text: "This gives your sales team cleaner leads to follow up with." },
   ],
   default: [
-    { from: "bot", text: "I can help with services, pricing, websites, or booking a free AI audit. Try asking: How much does it cost?" },
+    { from: "bot", text: "I can help with services, pricing, websites, or booking a free AI audit. You can also try: salon demo, plumbing demo, or car sales demo." },
   ],
 };
 
@@ -100,6 +91,18 @@ function getBotFlowKey(text) {
 
   if (t.includes("book") || t.includes("audit") || t.includes("demo") || t.includes("call")) {
     return "booking";
+  }
+
+  if (t.includes("salon") || t.includes("barber") || t.includes("hair")) {
+    return "salon";
+  }
+
+  if (t.includes("plumb") || t.includes("electric") || t.includes("geyser") || t.includes("leak")) {
+    return "plumbing";
+  }
+
+  if (t.includes("car") || t.includes("dealership") || t.includes("vehicle") || t.includes("finance")) {
+    return "cars";
   }
 
   if (t.includes("website") || t.includes("landing page") || t.includes("site")) {
@@ -299,7 +302,7 @@ function ChatDemo() {
   };
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-cyan-300/20 bg-slate-950 shadow-2xl shadow-cyan-950/40">
+    <div className="overflow-hidden rounded-[1.5rem] border border-cyan-300/20 bg-slate-950 shadow-2xl shadow-cyan-950/40 sm:rounded-[2rem]">
       <div className="flex items-center justify-between bg-gradient-to-r from-cyan-400/20 to-blue-500/10 px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-full bg-cyan-400/10">
@@ -313,7 +316,7 @@ function ChatDemo() {
         <Icon name="message" className="h-5 w-5 text-cyan-200" />
       </div>
 
-      <div className="h-[390px] overflow-y-auto bg-slate-900 p-5">
+      <div className="h-[360px] overflow-y-auto bg-slate-900 p-4 sm:h-[390px] sm:p-5">
         <div className="space-y-4">
           {messages.map((message, index) => (
             <div key={`${message.from}-${index}-${message.text}`} className={`flex ${message.from === "user" ? "justify-end" : "justify-start"}`}>
@@ -329,12 +332,21 @@ function ChatDemo() {
 
       <div className="border-t border-white/10 p-4">
         <div className="mb-3 flex flex-wrap gap-2">
-          <button type="button" onClick={() => sendFlow("services")} className="rounded-full border border-cyan-300/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-300/10">Services</button>
-          <button type="button" onClick={() => sendFlow("pricing")} className="rounded-full border border-cyan-300/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-300/10">Pricing</button>
-          <button type="button" onClick={() => sendFlow("booking")} className="rounded-full border border-cyan-300/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-300/10">Free audit</button>
+          {[
+            ["services", "Services"],
+            ["pricing", "Pricing"],
+            ["salon", "Salon demo"],
+            ["plumbing", "Plumbing demo"],
+            ["cars", "Car sales demo"],
+            ["booking", "Free audit"],
+          ].map(([key, label]) => (
+            <button key={key} type="button" onClick={() => sendFlow(key)} className="rounded-full border border-cyan-300/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-300/10">
+              {label}
+            </button>
+          ))}
         </div>
         <div className="flex gap-2">
-          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") handleSend(); }} placeholder="Ask about pricing, services, or booking..." className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/50" />
+          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") handleSend(); }} placeholder="Try: salon demo, pricing, or book audit..." className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/50" />
           <button type="button" onClick={handleSend} className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-300 text-slate-950 hover:bg-white" aria-label="Send message">
             <Icon name="send" />
           </button>
@@ -446,32 +458,83 @@ export default function App() {
 
       <Header />
 
-      <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+      <section className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-5 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
         <div>
           <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm text-cyan-100">
             <LogoMark className="h-7 w-7" /> AI systems for South African businesses
           </div>
-          <h1 className="text-4xl font-black leading-tight tracking-tight text-white md:text-6xl">
-            Get More Customers With AI Websites, WhatsApp Bots & Business Automation.
+          <h1 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl md:text-6xl">
+            Get More Customers Automatically with AI-Powered Websites & WhatsApp Automation
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-            Novex Digital builds systems that answer customers instantly, capture leads, book enquiries, and automate follow-ups so you stop losing business after hours.
+          <p className="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">
+            We build systems that reply instantly, capture leads, and turn visitors into paying customers — 24/7.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a href={WA_LINK} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-white">
-              <Icon name="message" /> Get free AI audit
+              <Icon name="message" /> Chat on WhatsApp
             </a>
             <a href="#system" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-6 py-4 font-bold text-white transition hover:bg-white/10">
-              <Icon name="robot" /> See how it works
+              <Icon name="robot" /> See the system
             </a>
           </div>
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             <Stat value="24/7" label="Customer replies" />
             <Stat value="3-in-1" label="Website + bot + automation" />
-            <Stat value="+27 68" label="Direct WhatsApp contact" />
+            <Stat value="+27 68 821 5876" label="Direct WhatsApp contact" />
           </div>
         </div>
         <ChatDemo />
+      </section>
+
+      <section className="relative mx-auto max-w-7xl px-5 py-12">
+        <div className="grid gap-6 rounded-[2rem] border border-cyan-300/20 bg-gradient-to-br from-cyan-300/10 via-white/[0.04] to-blue-600/10 p-8 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Limited Setup Offer</p>
+            <h2 className="mt-3 text-3xl font-black md:text-5xl">Website + WhatsApp AI system set up in 3 days.</h2>
+            <p className="mt-5 leading-8 text-slate-300">We build the system for you so your business can reply faster, capture leads automatically, and stop losing customers to slow responses.</p>
+            <a href={WA_LINK} target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 hover:bg-white">
+              <Icon name="message" /> Get started today
+            </a>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {["Instant replies to customers", "Automated lead capture", "WhatsApp-first system", "No technical work needed"].map((item) => (
+              <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/50 p-4 text-slate-200">
+                <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /> {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative mx-auto max-w-7xl px-5 py-12">
+        <div className="rounded-[2rem] border border-rose-300/20 bg-rose-300/[0.06] p-8 lg:p-10">
+          <p className="text-sm font-bold uppercase tracking-[0.28em] text-rose-200">The Problem</p>
+          <h2 className="mt-3 text-3xl font-black md:text-5xl">Without automation, you are losing customers.</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-4">
+            {["Slow replies = lost sales", "Missed messages = missed income", "Competitors reply faster", "Customers choose someone else"].map((item) => (
+              <div key={item} className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 text-sm font-bold text-slate-200">{item}</div>
+            ))}
+          </div>
+          <a href={WA_LINK} target="_blank" rel="noreferrer" className="mt-8 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 hover:bg-white">
+            <Icon name="bolt" /> Fix this with automation
+          </a>
+        </div>
+      </section>
+
+      <section className="relative mx-auto max-w-7xl px-5 py-12">
+        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Why Novex Digital</p>
+            <h2 className="mt-3 text-3xl font-black md:text-5xl">Built for South African businesses that use WhatsApp daily.</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {["Fast setup in 2–3 days", "WhatsApp-first systems", "Built for local service businesses", "Ongoing support and optimisation"].map((item) => (
+              <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-slate-200">
+                <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /> {item}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section id="services" className="relative mx-auto max-w-7xl px-5 py-16">
@@ -489,10 +552,10 @@ export default function App() {
       <section id="system" className="relative mx-auto max-w-7xl px-5 py-16">
         <div className="grid gap-8 rounded-[2rem] border border-cyan-300/20 bg-gradient-to-br from-cyan-300/10 via-white/[0.04] to-blue-600/10 p-8 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Real WhatsApp AI System</p>
-            <h2 className="mt-3 text-3xl font-black md:text-5xl">The production system behind the website.</h2>
-            <p className="mt-5 leading-8 text-slate-300">This site now has the front-end foundation for a real WhatsApp automation funnel: WhatsApp entry points, AI demo, lead capture, Google Sheets connection, and tracking hooks.</p>
-            <a href={WA_LINK} target="_blank" rel="noreferrer" className="mt-7 inline-flex rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 hover:bg-white">Test WhatsApp entry point</a>
+            <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">How It Works</p>
+            <h2 className="mt-3 text-3xl font-black md:text-5xl">A smarter way to handle customers on WhatsApp.</h2>
+            <p className="mt-5 leading-8 text-slate-300">When customers contact your business, Novex Digital helps you respond faster, collect the right details, and turn more enquiries into real opportunities.</p>
+            <a href={WA_LINK} target="_blank" rel="noreferrer" className="mt-7 inline-flex rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 hover:bg-white">Start with Novex Digital</a>
           </div>
           <div className="space-y-4">
             {automationSteps.map((step, index) => (
@@ -502,28 +565,6 @@ export default function App() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section id="case-studies" className="relative mx-auto max-w-7xl px-5 py-16">
-        <div className="mb-10 max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">High-Converting Demo Pages</p>
-          <h2 className="mt-3 text-3xl font-black md:text-5xl">Show prospects examples that feel like their business.</h2>
-          <p className="mt-4 text-slate-400">Use these case-study demos in sales calls and outreach to make the value obvious.</p>
-        </div>
-        <div className="grid gap-5 lg:grid-cols-3">
-          {caseStudies.map((study) => (
-            <div key={study.industry} className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-              <p className="text-sm font-bold text-cyan-300">{study.industry}</p>
-              <h3 className="mt-3 text-2xl font-black text-white">{study.headline}</h3>
-              <div className="mt-6 space-y-4 text-sm leading-7 text-slate-300">
-                <p><span className="font-bold text-rose-200">Before:</span> {study.before}</p>
-                <p><span className="font-bold text-emerald-200">After:</span> {study.after}</p>
-                <p><span className="font-bold text-cyan-200">Result:</span> {study.result}</p>
-              </div>
-              <a href={WA_LINK} target="_blank" rel="noreferrer" className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-cyan-300/20 px-5 py-3 text-sm font-bold text-cyan-100 hover:bg-cyan-300 hover:text-slate-950">Request similar system <Icon name="chevron" className="h-4 w-4" /></a>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -539,12 +580,12 @@ export default function App() {
         </div>
       </section>
 
-      <section id="packages" className="relative mx-auto max-w-7xl px-5 py-16">
+      <section id="packages" className="relative mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-16">
         <div className="mb-10 max-w-3xl">
           <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Packages</p>
-          <h2 className="mt-3 text-3xl font-black md:text-5xl">Simple offers. Clear monthly income.</h2>
+          <h2 className="mt-3 text-3xl font-black md:text-5xl">Choose the system that helps your business reply faster, capture more leads, and grow monthly.</h2>
         </div>
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {packages.map((pkg) => <PackageCard key={pkg.name} pkg={pkg} />)}
         </div>
       </section>
