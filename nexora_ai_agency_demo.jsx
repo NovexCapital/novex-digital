@@ -581,13 +581,6 @@ export default function App() {
         </div>
       </section>
 
-      <section className="relative mx-auto max-w-7xl px-5 pb-16">
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-sm leading-7 text-slate-400">
-          <p className="font-bold text-white">Production setup note:</p>
-          <p>Google Sheets lead capture is connected. Next connection steps: add your Meta Pixel ID to META_PIXEL_ID, add your GA4 Measurement ID to GOOGLE_MEASUREMENT_ID, then connect WhatsApp Business API through Meta, Twilio, ManyChat, or another provider. The website is now prepared for lead capture, conversion tracking, WhatsApp entry points, and case-study sales pages.</p>
-        </div>
-      </section>
-
       <footer className="relative border-t border-white/10 px-5 py-8 text-center text-sm text-slate-500">
         © {year} Novex Digital. Connect. Automate. Grow.
       </footer>
