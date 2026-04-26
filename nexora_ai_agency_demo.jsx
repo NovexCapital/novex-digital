@@ -264,15 +264,29 @@ function Stat({ value, label }) {
 }
 
 function ChatDemo() {
-  const [messages, setMessages] = useState([{ from: "bot", text: "Hi 👋 I’m Novex AI. I can explain our services, pricing, or help you request a free AI audit." }]);
+  const leadQuestions = [
+    { key: "name", question: "Great — what is your name?" },
+    { key: "business", question: "What is your business name or business type?" },
+    { key: "whatsapp", question: "What WhatsApp number should we contact you on?" },
+    { key: "automation", question: "What would you like to improve or automate? Example: website, WhatsApp replies, bookings, lead capture, follow-ups." },
+  ];
+
+  const [messages, setMessages] = useState([
+    { from: "bot", text: "Hi 👋 I’m the Novex Digital assistant. I can help you request a free AI audit and capture your details for the team." },
+    { from: "bot", text: "Tap Start AI Audit below, or ask about services and pricing." },
+  ]);
   const [typing, setTyping] = useState(false);
   const [input, setInput] = useState("");
+  const [captureMode, setCaptureMode] = useState(false);
+  const [leadStep, setLeadStep] = useState(0);
+  const [leadData, setLeadData] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const endRef = useRef(null);
   const timeoutRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, typing]);
+  }, [messages, typing, submitting]);
 
   useEffect(() => {
     return () => {
@@ -280,24 +294,109 @@ function ChatDemo() {
     };
   }, []);
 
-  const sendFlow = (key, customText) => {
-    const text = customText || (key === "pricing" ? "How much does it cost?" : key === "booking" ? "Book a free audit" : "What services do you offer?");
+  const addBotMessages = (botMessages, delay = 500) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    setMessages((current) => [...current, { from: "user", text }]);
     setTyping(true);
-
     timeoutRef.current = setTimeout(() => {
-      setMessages((current) => [...current, ...(botFlows[key] || botFlows.default)]);
+      setMessages((current) => [...current, ...botMessages]);
       setTyping(false);
       timeoutRef.current = null;
-    }, 650);
+    }, delay);
+  };
+
+  const submitLead = async (data) => {
+    setSubmitting(true);
+    const payload = {
+      name: data.name || "",
+      business: data.business || "",
+      whatsapp: data.whatsapp || "",
+      service: "Website + WhatsApp AI",
+      automation: data.automation || "",
+      source: "Novex Digital Website Chatbot",
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      if (isConfigured(GOOGLE_SHEETS_WEB_APP_URL)) {
+        await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (window.fbq) window.fbq("track", "Lead");
+      if (window.gtag) window.gtag("event", "generate_lead", { event_category: "Lead", event_label: "Chatbot Lead" });
+
+      const whatsappText = `Hi Novex Digital, I completed the AI audit form.%0A%0AName: ${encodeURIComponent(payload.name)}%0ABusiness: ${encodeURIComponent(payload.business)}%0AWhatsApp: ${encodeURIComponent(payload.whatsapp)}%0ANeed: ${encodeURIComponent(payload.automation)}`;
+      const directLink = `https://wa.me/${PHONE_NUMBER}?text=${whatsappText}`;
+
+      setMessages((current) => [
+        ...current,
+        { from: "bot", text: "Perfect — your details have been captured. The next step is to message us directly on WhatsApp so we can continue the conversation." },
+        { from: "bot", text: "Tap the WhatsApp button below to send your request instantly." },
+        { from: "action", text: "Continue on WhatsApp", link: directLink },
+      ]);
+      setCaptureMode(false);
+      setLeadStep(0);
+      setLeadData({});
+    } catch (error) {
+      setMessages((current) => [
+        ...current,
+        { from: "bot", text: "Something went wrong while saving your details. Please tap WhatsApp Us and message Novex Digital directly." },
+      ]);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const startCapture = () => {
+    setCaptureMode(true);
+    setLeadStep(0);
+    setLeadData({});
+    setMessages((current) => [...current, { from: "user", text: "Start AI Audit" }]);
+    addBotMessages([{ from: "bot", text: leadQuestions[0].question }]);
+  };
+
+  const sendFlow = (key, customText) => {
+    const text = customText || (key === "pricing" ? "How much does it cost?" : key === "booking" ? "Start AI Audit" : "What services do you offer?");
+    setMessages((current) => [...current, { from: "user", text }]);
+
+    if (key === "booking") {
+      setCaptureMode(true);
+      setLeadStep(0);
+      setLeadData({});
+      addBotMessages([{ from: "bot", text: leadQuestions[0].question }]);
+      return;
+    }
+
+    addBotMessages(botFlows[key] || botFlows.default);
   };
 
   const handleSend = () => {
     const text = input.trim();
-    if (!text) return;
+    if (!text || submitting) return;
     setInput("");
+
+    setMessages((current) => [...current, { from: "user", text }]);
+
+    if (captureMode) {
+      const currentQuestion = leadQuestions[leadStep];
+      const updatedLeadData = { ...leadData, [currentQuestion.key]: text };
+      setLeadData(updatedLeadData);
+
+      const nextStep = leadStep + 1;
+      if (nextStep < leadQuestions.length) {
+        setLeadStep(nextStep);
+        addBotMessages([{ from: "bot", text: leadQuestions[nextStep].question }]);
+      } else {
+        addBotMessages([{ from: "bot", text: "Thanks. I’m saving your request now..." }], 300);
+        setTimeout(() => submitLead(updatedLeadData), 700);
+      }
+      return;
+    }
+
     sendFlow(getBotFlowKey(text), text);
   };
 
@@ -309,36 +408,45 @@ function ChatDemo() {
             <LogoMark className="h-10 w-10" />
           </div>
           <div>
-            <p className="font-bold text-white">Novex WhatsApp AI</p>
-            <p className="flex items-center gap-1 text-xs text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-300" /> Demo assistant online</p>
+            <p className="font-bold text-white">Novex Lead Assistant</p>
+            <p className="flex items-center gap-1 text-xs text-emerald-300"><span className="h-2 w-2 rounded-full bg-emerald-300" /> Online now</p>
           </div>
         </div>
         <Icon name="message" className="h-5 w-5 text-cyan-200" />
       </div>
 
-      <div className="h-[360px] overflow-y-auto bg-slate-900 p-4 sm:h-[390px] sm:p-5">
+      <div className="h-[390px] overflow-y-auto bg-slate-900 p-4 sm:h-[420px] sm:p-5">
         <div className="space-y-4">
           {messages.map((message, index) => (
-            <div key={`${message.from}-${index}-${message.text}`} className={`flex ${message.from === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.from === "user" ? "bg-cyan-300 text-slate-950" : "border border-white/10 bg-white/[0.06] text-slate-100"}`}>
-                {message.text}
-              </div>
+            <div key={`${message.from}-${index}-${message.text}`} className={`flex ${message.from === "user" || message.from === "action" ? "justify-end" : "justify-start"}`}>
+              {message.from === "action" ? (
+                <a href={message.link} target="_blank" rel="noreferrer" className="rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-black text-slate-950 hover:bg-white">
+                  {message.text}
+                </a>
+              ) : (
+                <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.from === "user" ? "bg-cyan-300 text-slate-950" : "border border-white/10 bg-white/[0.06] text-slate-100"}`}>
+                  {message.text}
+                </div>
+              )}
             </div>
           ))}
-          {typing ? <div className="w-fit rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-slate-300">AI is typing...</div> : null}
+          {typing ? <div className="w-fit rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-slate-300">Assistant is typing...</div> : null}
+          {submitting ? <div className="w-fit rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">Saving your request...</div> : null}
           <div ref={endRef} />
         </div>
       </div>
 
       <div className="border-t border-white/10 p-4">
         <div className="mb-3 flex flex-wrap gap-2">
+          <button type="button" onClick={startCapture} className="rounded-full bg-cyan-300 px-3 py-2 text-xs font-bold text-slate-950 hover:bg-white">
+            Start AI Audit
+          </button>
           {[
             ["services", "Services"],
             ["pricing", "Pricing"],
-            ["salon", "Salon demo"],
-            ["plumbing", "Plumbing demo"],
-            ["cars", "Car sales demo"],
-            ["booking", "Free audit"],
+            ["salon", "Salon"],
+            ["plumbing", "Plumbing"],
+            ["cars", "Car Sales"],
           ].map(([key, label]) => (
             <button key={key} type="button" onClick={() => sendFlow(key)} className="rounded-full border border-cyan-300/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-300/10">
               {label}
@@ -346,8 +454,8 @@ function ChatDemo() {
           ))}
         </div>
         <div className="flex gap-2">
-          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") handleSend(); }} placeholder="Try: salon demo, pricing, or book audit..." className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/50" />
-          <button type="button" onClick={handleSend} className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-300 text-slate-950 hover:bg-white" aria-label="Send message">
+          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") handleSend(); }} placeholder={captureMode ? "Type your answer..." : "Ask a question or start an audit..."} className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/50" />
+          <button type="button" onClick={handleSend} disabled={submitting} className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-300 text-slate-950 hover:bg-white disabled:opacity-50" aria-label="Send message">
             <Icon name="send" />
           </button>
         </div>
@@ -537,6 +645,48 @@ export default function App() {
         </div>
       </section>
 
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16">
+        <div className="grid gap-5 md:grid-cols-4">
+          {[
+            ["24/7", "Customer response system"],
+            ["2–3 days", "Fast setup timeline"],
+            ["WhatsApp-first", "Built for SA businesses"],
+            ["Monthly", "Support & optimisation"],
+          ].map(([value, label]) => (
+            <div key={label} className="rounded-[1.5rem] border border-cyan-300/20 bg-gradient-to-br from-white/[0.07] to-cyan-300/[0.05] p-6 shadow-2xl shadow-cyan-950/20">
+              <p className="text-3xl font-black text-cyan-200">{value}</p>
+              <p className="mt-2 text-sm text-slate-400">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16">
+        <div className="rounded-[2rem] border border-white/10 bg-slate-900/70 p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Why Businesses Trust Novex</p>
+              <h2 className="mt-3 text-3xl font-black md:text-5xl">Professional systems, clear support, and practical automation.</h2>
+              <p className="mt-5 leading-8 text-slate-300">We focus on simple, useful AI systems that help businesses respond faster, capture better leads, and look more professional online.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                "Secure lead capture setup",
+                "Google Sheets / CRM ready",
+                "WhatsApp-first customer journeys",
+                "Mobile-friendly websites",
+                "Clear monthly support",
+                "Built with scalable tools",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-slate-200">
+                  <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /> {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="services" className="relative mx-auto max-w-7xl px-5 py-16">
         <div className="mb-10 max-w-3xl">
           <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">What Novex Builds</p>
@@ -587,6 +737,18 @@ export default function App() {
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {packages.map((pkg) => <PackageCard key={pkg.name} pkg={pkg} />)}
+        </div>
+      </section>
+
+      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16">
+        <div className="rounded-[2rem] border border-cyan-300/20 bg-gradient-to-br from-cyan-300/10 via-slate-900/90 to-blue-600/10 p-8 text-center lg:p-12">
+          <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Follow The Build</p>
+          <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black md:text-5xl">Connect with Novex Digital on Instagram.</h2>
+          <p className="mx-auto mt-5 max-w-2xl leading-8 text-slate-300">We’ll be sharing AI demos, business automation ideas, website examples, and client-ready systems.</p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="https://instagram.com/novexdigitalai" target="_blank" rel="noreferrer" className="rounded-2xl border border-white/10 px-6 py-4 font-black text-white hover:bg-white/10">Open Instagram</a>
+            <a href={WA_LINK} target="_blank" rel="noreferrer" className="rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 hover:bg-white">Chat on WhatsApp</a>
+          </div>
         </div>
       </section>
 
