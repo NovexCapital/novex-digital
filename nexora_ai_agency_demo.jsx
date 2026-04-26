@@ -4,8 +4,9 @@ const PHONE_NUMBER = "27688215876";
 const GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxW-cDYysfS7eiLTqZxjX6AJGKbwVvWTD-_eoifG4vSB6VIccpmQJv_ozova3HrZbU9ng/exec";
 const META_PIXEL_ID = "PASTE_YOUR_META_PIXEL_ID_HERE";
 const GOOGLE_MEASUREMENT_ID = "PASTE_YOUR_GA4_MEASUREMENT_ID_HERE";
-const WHATSAPP_MESSAGE = "Hi Novex Digital, I saw your website and I’m interested in your AI website, WhatsApp chatbot, or automation services.";
+const WHATSAPP_MESSAGE = "Hi Novex Digital, I saw your website and I am interested in your AI website, WhatsApp chatbot, or automation services.";
 const WA_LINK = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+const INSTAGRAM_LINK = "https://instagram.com/novexdigitalai";
 
 const packages = [
   {
@@ -13,7 +14,7 @@ const packages = [
     price: "R1,499 setup + R299/mo",
     description: "A clean business website with WhatsApp lead capture and hosting support.",
     features: ["1-page conversion website", "WhatsApp click-to-chat", "Lead capture form", "Basic SEO setup", "Hosting guidance", "Monthly edits"],
-    cta: "Start with this",
+    cta: "Get this installed",
     popular: false,
   },
   {
@@ -38,13 +39,11 @@ const industries = ["Car dealerships", "Real estate agents", "Salons", "Clinics"
 
 const automationSteps = [
   "Customer messages your business on WhatsApp",
-  "WhatsApp Business API sends the message to your webhook",
-  "AI replies instantly and asks the right questions",
-  "Lead details are saved to Google Sheets or your CRM",
-  "Qualified leads are sent to you for closing",
-  "Follow-ups can be triggered automatically",
+  "Your system responds quickly and asks the right questions",
+  "Lead details are captured in a simple lead pipeline",
+  "You receive a qualified enquiry with the important details",
+  "Follow-ups and reminders can be automated as the business grows",
 ];
-
 
 const botFlows = {
   services: [
@@ -66,15 +65,15 @@ const botFlows = {
     { from: "bot", text: "Your site can include services, pricing, enquiry forms, a chatbot demo, and strong WhatsApp call-to-action buttons." },
   ],
   salon: [
-    { from: "bot", text: "For salons and barbers, we can automate bookings, service questions, pricing, location, operating hours, and reminders." },
-    { from: "bot", text: "Example lead captured: service needed, preferred date, preferred time, name, and WhatsApp number." },
+    { from: "bot", text: "For salons and barbers, we can help automate bookings, service questions, pricing, location, operating hours, and reminders." },
+    { from: "bot", text: "Typical lead details include the service needed, preferred date, preferred time, name, and WhatsApp number." },
   ],
   plumbing: [
-    { from: "bot", text: "For plumbers and electricians, the AI can capture the customer’s area, issue, urgency, photos, and contact number." },
+    { from: "bot", text: "For plumbers and electricians, the system can capture the customer area, issue, urgency, photos, and contact number." },
     { from: "bot", text: "This helps you respond faster and prioritise emergency jobs." },
   ],
   cars: [
-    { from: "bot", text: "For car dealerships, the AI can qualify buyers by vehicle interest, budget, finance status, trade-in, and appointment request." },
+    { from: "bot", text: "For car dealerships, the system can qualify buyers by vehicle interest, budget, finance status, trade-in, and appointment request." },
     { from: "bot", text: "This gives your sales team cleaner leads to follow up with." },
   ],
   default: [
@@ -83,35 +82,15 @@ const botFlows = {
 };
 
 function getBotFlowKey(text) {
-  const t = text.toLowerCase();
+  const t = String(text || "").toLowerCase();
 
-  if (t.includes("price") || t.includes("cost") || t.includes("package") || t.includes("how much")) {
-    return "pricing";
-  }
-
-  if (t.includes("book") || t.includes("audit") || t.includes("demo") || t.includes("call")) {
-    return "booking";
-  }
-
-  if (t.includes("salon") || t.includes("barber") || t.includes("hair")) {
-    return "salon";
-  }
-
-  if (t.includes("plumb") || t.includes("electric") || t.includes("geyser") || t.includes("leak")) {
-    return "plumbing";
-  }
-
-  if (t.includes("car") || t.includes("dealership") || t.includes("vehicle") || t.includes("finance")) {
-    return "cars";
-  }
-
-  if (t.includes("website") || t.includes("landing page") || t.includes("site")) {
-    return "website";
-  }
-
-  if (t.includes("service") || t.includes("bot") || t.includes("automation") || t.includes("whatsapp") || t.includes("ai")) {
-    return "services";
-  }
+  if (t.includes("price") || t.includes("cost") || t.includes("package") || t.includes("how much")) return "pricing";
+  if (t.includes("book") || t.includes("audit") || t.includes("demo") || t.includes("call")) return "booking";
+  if (t.includes("salon") || t.includes("barber") || t.includes("hair")) return "salon";
+  if (t.includes("plumb") || t.includes("electric") || t.includes("geyser") || t.includes("leak")) return "plumbing";
+  if (t.includes("car") || t.includes("dealership") || t.includes("vehicle") || t.includes("finance")) return "cars";
+  if (t.includes("website") || t.includes("landing page") || t.includes("site")) return "website";
+  if (t.includes("service") || t.includes("bot") || t.includes("automation") || t.includes("whatsapp") || t.includes("ai")) return "services";
 
   return "default";
 }
@@ -123,6 +102,9 @@ function runTests() {
     { input: "Can I book a demo?", expected: "booking" },
     { input: "I need a website", expected: "website" },
     { input: "Do you build WhatsApp bots?", expected: "services" },
+    { input: "Salon booking system", expected: "booking" },
+    { input: "Plumbing emergency", expected: "plumbing" },
+    { input: "Car dealership finance", expected: "cars" },
     { input: "Hello", expected: "default" },
   ];
 
@@ -135,7 +117,7 @@ function runTests() {
 }
 
 function isConfigured(value) {
-  return value && !value.startsWith("PASTE_YOUR_");
+  return Boolean(value) && !String(value).startsWith("PASTE_YOUR_");
 }
 
 runTests();
@@ -197,7 +179,6 @@ function Icon({ name, className = "h-5 w-5" }) {
     robot: <svg {...commonProps}><rect x="5" y="8" width="14" height="10" rx="3" /><path d="M12 8V4" /><path d="M8 12h.01" /><path d="M16 12h.01" /><path d="M9 16h6" /></svg>,
     bolt: <svg {...commonProps}><path d="M13 2L3 14h8l-1 8 11-14h-8l1-6z" /></svg>,
     globe: <svg {...commonProps}><circle cx="12" cy="12" r="10" /><path d="M2 12h20" /><path d="M12 2a15 15 0 0 1 0 20" /><path d="M12 2a15 15 0 0 0 0 20" /></svg>,
-    chart: <svg {...commonProps}><path d="M4 19V5" /><path d="M4 19h16" /><path d="M8 16v-5" /><path d="M12 16V8" /><path d="M16 16v-3" /></svg>,
     chevron: <svg {...commonProps}><path d="M9 18l6-6-6-6" /></svg>,
     shield: <svg {...commonProps}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-5" /></svg>,
   };
@@ -211,7 +192,7 @@ function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-cyan-300/10 bg-slate-950/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-5">
         <a href="#home" className="flex items-center gap-3" aria-label="Novex Digital home">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-400/10 shadow-lg shadow-cyan-500/20">
             <LogoMark className="h-11 w-11" />
@@ -329,8 +310,8 @@ function ChatDemo() {
       if (window.fbq) window.fbq("track", "Lead");
       if (window.gtag) window.gtag("event", "generate_lead", { event_category: "Lead", event_label: "Chatbot Lead" });
 
-      const whatsappText = `Hi Novex Digital, I completed the AI audit form.%0A%0AName: ${encodeURIComponent(payload.name)}%0ABusiness: ${encodeURIComponent(payload.business)}%0AWhatsApp: ${encodeURIComponent(payload.whatsapp)}%0ANeed: ${encodeURIComponent(payload.automation)}`;
-      const directLink = `https://wa.me/${PHONE_NUMBER}?text=${whatsappText}`;
+      const directText = `Hi Novex Digital, I completed the AI audit form.\n\nName: ${payload.name}\nBusiness: ${payload.business}\nWhatsApp: ${payload.whatsapp}\nNeed: ${payload.automation}`;
+      const directLink = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(directText)}`;
 
       setMessages((current) => [
         ...current,
@@ -342,10 +323,7 @@ function ChatDemo() {
       setLeadStep(0);
       setLeadData({});
     } catch (error) {
-      setMessages((current) => [
-        ...current,
-        { from: "bot", text: "Something went wrong while saving your details. Please tap WhatsApp Us and message Novex Digital directly." },
-      ]);
+      setMessages((current) => [...current, { from: "bot", text: "Something went wrong while saving your details. Please tap WhatsApp Us and message Novex Digital directly." }]);
     } finally {
       setSubmitting(false);
     }
@@ -361,14 +339,18 @@ function ChatDemo() {
 
   const sendFlow = (key, customText) => {
     const text = customText || (key === "pricing" ? "How much does it cost?" : key === "booking" ? "Start AI Audit" : "What services do you offer?");
-    setMessages((current) => [...current, { from: "user", text }]);
 
     if (key === "booking") {
+      setMessages((current) => [...current, { from: "user", text }]);
       setCaptureMode(true);
       setLeadStep(0);
       setLeadData({});
       addBotMessages([{ from: "bot", text: leadQuestions[0].question }]);
       return;
+    }
+
+    if (!customText) {
+      setMessages((current) => [...current, { from: "user", text }]);
     }
 
     addBotMessages(botFlows[key] || botFlows.default);
@@ -378,7 +360,6 @@ function ChatDemo() {
     const text = input.trim();
     if (!text || submitting) return;
     setInput("");
-
     setMessages((current) => [...current, { from: "user", text }]);
 
     if (captureMode) {
@@ -397,7 +378,7 @@ function ChatDemo() {
       return;
     }
 
-    sendFlow(getBotFlowKey(text), text);
+    addBotMessages(botFlows[getBotFlowKey(text)] || botFlows.default);
   };
 
   return (
@@ -438,16 +419,8 @@ function ChatDemo() {
 
       <div className="border-t border-white/10 p-4">
         <div className="mb-3 flex flex-wrap gap-2">
-          <button type="button" onClick={startCapture} className="rounded-full bg-cyan-300 px-3 py-2 text-xs font-bold text-slate-950 hover:bg-white">
-            Start AI Audit
-          </button>
-          {[
-            ["services", "Services"],
-            ["pricing", "Pricing"],
-            ["salon", "Salon"],
-            ["plumbing", "Plumbing"],
-            ["cars", "Car Sales"],
-          ].map(([key, label]) => (
+          <button type="button" onClick={startCapture} className="rounded-full bg-cyan-300 px-3 py-2 text-xs font-bold text-slate-950 hover:bg-white">Start AI Audit</button>
+          {[["services", "Services"], ["pricing", "Pricing"], ["salon", "Salon"], ["plumbing", "Plumbing"], ["cars", "Car Sales"]].map(([key, label]) => (
             <button key={key} type="button" onClick={() => sendFlow(key)} className="rounded-full border border-cyan-300/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-300/10">
               {label}
             </button>
@@ -629,35 +602,15 @@ export default function App() {
         </div>
       </section>
 
-      <section className="relative mx-auto max-w-7xl px-5 py-12">
-        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Why Novex Digital</p>
-            <h2 className="mt-3 text-3xl font-black md:text-5xl">Built for South African businesses that use WhatsApp daily.</h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {["Fast setup in 2–3 days", "WhatsApp-first systems", "Built for local service businesses", "Ongoing support and optimisation"].map((item) => (
-              <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-slate-200">
-                <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /> {item}
-              </div>
-            ))}
-          </div>
+      <section id="services" className="relative mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-10 max-w-3xl">
+          <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">What Novex Builds</p>
+          <h2 className="mt-3 text-3xl font-black md:text-5xl">Your business should never miss another lead.</h2>
         </div>
-      </section>
-
-      <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16">
-        <div className="grid gap-5 md:grid-cols-4">
-          {[
-            ["24/7", "Customer response system"],
-            ["2–3 days", "Fast setup timeline"],
-            ["WhatsApp-first", "Built for SA businesses"],
-            ["Monthly", "Support & optimisation"],
-          ].map(([value, label]) => (
-            <div key={label} className="rounded-[1.5rem] border border-cyan-300/20 bg-gradient-to-br from-white/[0.07] to-cyan-300/[0.05] p-6 shadow-2xl shadow-cyan-950/20">
-              <p className="text-3xl font-black text-cyan-200">{value}</p>
-              <p className="mt-2 text-sm text-slate-400">{label}</p>
-            </div>
-          ))}
+        <div className="grid gap-5 md:grid-cols-3">
+          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6"><Icon name="globe" className="mb-5 h-9 w-9 text-cyan-300" /><h3 className="text-xl font-bold">AI Websites</h3><p className="mt-3 text-sm leading-7 text-slate-400">Conversion-focused websites built to drive WhatsApp enquiries and bookings.</p></div>
+          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6"><Icon name="robot" className="mb-5 h-9 w-9 text-cyan-300" /><h3 className="text-xl font-bold">WhatsApp AI Bots</h3><p className="mt-3 text-sm leading-7 text-slate-400">AI assistants that reply instantly, answer FAQs, qualify leads, and collect details.</p></div>
+          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6"><Icon name="bolt" className="mb-5 h-9 w-9 text-cyan-300" /><h3 className="text-xl font-bold">Automation Systems</h3><p className="mt-3 text-sm leading-7 text-slate-400">Automated follow-ups, CRM updates, quote flows, dashboards, and admin workflows.</p></div>
         </div>
       </section>
 
@@ -670,32 +623,13 @@ export default function App() {
               <p className="mt-5 leading-8 text-slate-300">We focus on simple, useful AI systems that help businesses respond faster, capture better leads, and look more professional online.</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                "Secure lead capture setup",
-                "Google Sheets / CRM ready",
-                "WhatsApp-first customer journeys",
-                "Mobile-friendly websites",
-                "Clear monthly support",
-                "Built with scalable tools",
-              ].map((item) => (
+              {["Secure lead capture setup", "Google Sheets / CRM ready", "WhatsApp-first customer journeys", "Mobile-friendly websites", "Clear monthly support", "Built with scalable tools"].map((item) => (
                 <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-slate-200">
                   <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /> {item}
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      <section id="services" className="relative mx-auto max-w-7xl px-5 py-16">
-        <div className="mb-10 max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">What Novex Builds</p>
-          <h2 className="mt-3 text-3xl font-black md:text-5xl">Your business should never miss another lead.</h2>
-        </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6"><Icon name="globe" className="mb-5 h-9 w-9 text-cyan-300" /><h3 className="text-xl font-bold">AI Websites</h3><p className="mt-3 text-sm leading-7 text-slate-400">Conversion-focused websites built to drive WhatsApp enquiries and bookings.</p></div>
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6"><Icon name="robot" className="mb-5 h-9 w-9 text-cyan-300" /><h3 className="text-xl font-bold">WhatsApp AI Bots</h3><p className="mt-3 text-sm leading-7 text-slate-400">AI assistants that reply instantly, answer FAQs, qualify leads, and collect details.</p></div>
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6"><Icon name="bolt" className="mb-5 h-9 w-9 text-cyan-300" /><h3 className="text-xl font-bold">Automation Systems</h3><p className="mt-3 text-sm leading-7 text-slate-400">Automated follow-ups, CRM updates, quote flows, dashboards, and admin workflows.</p></div>
         </div>
       </section>
 
@@ -731,6 +665,10 @@ export default function App() {
       </section>
 
       <section id="packages" className="relative mx-auto max-w-7xl px-4 py-14 sm:px-5 sm:py-16">
+        <div className="mb-8 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-amber-300">Limited Availability</p>
+          <p className="mt-1 text-sm text-slate-200">We only onboard a small number of businesses each month to ensure proper setup and support.</p>
+        </div>
         <div className="mb-10 max-w-3xl">
           <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Packages</p>
           <h2 className="mt-3 text-3xl font-black md:text-5xl">Choose the system that helps your business reply faster, capture more leads, and grow monthly.</h2>
@@ -742,11 +680,11 @@ export default function App() {
 
       <section className="relative mx-auto max-w-7xl px-4 py-12 sm:px-5 sm:py-16">
         <div className="rounded-[2rem] border border-cyan-300/20 bg-gradient-to-br from-cyan-300/10 via-slate-900/90 to-blue-600/10 p-8 text-center lg:p-12">
-          <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Follow The Build</p>
-          <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black md:text-5xl">Connect with Novex Digital on Instagram.</h2>
-          <p className="mx-auto mt-5 max-w-2xl leading-8 text-slate-300">We’ll be sharing AI demos, business automation ideas, website examples, and client-ready systems.</p>
+          <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Follow Novex Digital</p>
+          <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black md:text-5xl">See AI systems, automation ideas, and business growth tips.</h2>
+          <p className="mx-auto mt-5 max-w-2xl leading-8 text-slate-300">Follow us on Instagram for demos, examples, and practical ideas for using AI in your business.</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <a href="https://instagram.com/novexdigitalai" target="_blank" rel="noreferrer" className="rounded-2xl border border-white/10 px-6 py-4 font-black text-white hover:bg-white/10">Open Instagram</a>
+            <a href={INSTAGRAM_LINK} target="_blank" rel="noreferrer" className="rounded-2xl border border-white/10 px-6 py-4 font-black text-white hover:bg-white/10">Open Instagram</a>
             <a href={WA_LINK} target="_blank" rel="noreferrer" className="rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 hover:bg-white">Chat on WhatsApp</a>
           </div>
         </div>
@@ -757,7 +695,7 @@ export default function App() {
           <div className="p-8 md:p-12">
             <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-300">Start Here</p>
             <h2 className="mt-3 text-3xl font-black md:text-5xl">Request your free AI audit.</h2>
-            <p className="mt-5 leading-8 text-slate-300">Tell us what your business does and we’ll recommend the best website, WhatsApp bot, or automation system for you.</p>
+            <p className="mt-5 leading-8 text-slate-300">Tell us what your business does and we will recommend the best website, WhatsApp bot, or automation system for you.</p>
             <div className="mt-8 space-y-4 text-slate-200">
               <div className="flex items-center gap-3"><Icon name="phone" className="h-5 w-5 text-cyan-300" /> WhatsApp: +27 68 821 5876</div>
               <div className="flex items-center gap-3"><Icon name="shield" className="h-5 w-5 text-cyan-300" /> Built by Novex Digital</div>
@@ -775,7 +713,7 @@ export default function App() {
                 <option>Not sure yet</option>
               </select>
               <textarea name="automation" placeholder="What do you want to improve or automate?" rows={4} className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60" />
-              {formSent ? <p className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-3 text-sm text-emerald-200">Request captured. Your lead has been sent to the Novex Digital Google Sheet.</p> : null}
+              {formSent ? <p className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-3 text-sm text-emerald-200">Request captured. Your lead has been sent to Novex Digital.</p> : null}
               {formError ? <p className="rounded-2xl border border-rose-300/20 bg-rose-300/10 px-5 py-3 text-sm text-rose-200">{formError}</p> : null}
               <button type="submit" className="rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 transition hover:bg-white">Submit request</button>
               <a href={WA_LINK} target="_blank" rel="noreferrer" className="rounded-2xl border border-emerald-300/30 bg-emerald-300/10 px-6 py-4 text-center font-black text-emerald-200 transition hover:bg-emerald-300 hover:text-slate-950">Message directly on WhatsApp</a>
