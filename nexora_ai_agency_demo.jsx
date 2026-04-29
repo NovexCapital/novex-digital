@@ -7,7 +7,6 @@ const GOOGLE_MEASUREMENT_ID = "PASTE_YOUR_GA4_MEASUREMENT_ID_HERE";
 const WHATSAPP_MESSAGE = "Hi Novex Digital, I saw your website and I am interested in your AI website, WhatsApp chatbot, or automation services.";
 const WA_LINK = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 const INSTAGRAM_LINK = "https://instagram.com/novexdigitalai";
-const LEAD_API_URL = "/api/leads";
 
 const packages = [
   {
@@ -248,14 +247,18 @@ function Stat({ value, label }) {
 function ChatDemo() {
   const leadQuestions = [
     { key: "name", question: "Great — what is your name?" },
-    { key: "business", question: "What is your business name or business type?" },
+    { key: "business", question: "What is your business name?" },
+    { key: "industry", question: "What type of business do you run? Example: salon, plumbing, car dealership, real estate, clinic, gym, or retail." },
     { key: "whatsapp", question: "What WhatsApp number should we contact you on?" },
-    { key: "automation", question: "What would you like to improve or automate? Example: website, WhatsApp replies, bookings, lead capture, follow-ups." },
+    { key: "currentChannel", question: "How do customers usually contact you right now? WhatsApp, calls, Instagram, Facebook, website, or walk-ins?" },
+    { key: "mainProblem", question: "What is the biggest issue you want to fix? Slow replies, missed leads, bookings, follow-ups, admin work, or something else?" },
+    { key: "serviceInterest", question: "Which solution are you most interested in? Website, WhatsApp AI, lead capture, automation, or not sure yet?" },
+    { key: "timeline", question: "How soon would you like to get this set up? This week, this month, or just exploring?" },
   ];
 
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi 👋 I’m the Novex Digital assistant. I can help you request a free AI audit and capture your details for the team." },
-    { from: "bot", text: "Tap Start AI Audit below, or ask about services and pricing." },
+    { from: "bot", text: "Hi 👋 I’m the Novex Digital assistant. I can help you request a free AI audit and check what system would fit your business." },
+    { from: "bot", text: "Tap Start AI Audit below and I’ll ask a few quick questions so we can understand your business properly." },
   ]);
   const [typing, setTyping] = useState(false);
   const [input, setInput] = useState("");
@@ -288,28 +291,44 @@ function ChatDemo() {
 
   const submitLead = async (data) => {
     setSubmitting(true);
+    const leadSummary = [
+      `Industry: ${data.industry || ""}`,
+      `Current customer channel: ${data.currentChannel || ""}`,
+      `Main problem: ${data.mainProblem || ""}`,
+      `Interested in: ${data.serviceInterest || ""}`,
+      `Timeline: ${data.timeline || ""}`,
+    ].join(" | ");
+
     const payload = {
       name: data.name || "",
       business: data.business || "",
       whatsapp: data.whatsapp || "",
-      service: "Website + WhatsApp AI",
-      automation: data.automation || "",
+      service: data.serviceInterest || "Website + WhatsApp AI",
+      automation: leadSummary,
       source: "Novex Digital Website Chatbot",
       createdAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch(LEAD_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error("Lead endpoint failed");
+      if (isConfigured(GOOGLE_SHEETS_WEB_APP_URL)) {
+        await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (window.fbq) window.fbq("track", "Lead");
       if (window.gtag) window.gtag("event", "generate_lead", { event_category: "Lead", event_label: "Chatbot Lead" });
 
-      const directText = `Hi Novex Digital, I completed the AI audit form.\n\nName: ${payload.name}\nBusiness: ${payload.business}\nWhatsApp: ${payload.whatsapp}\nNeed: ${payload.automation}`;
+      const directText = `Hi Novex Digital, I completed the AI audit form.
+
+Name: ${payload.name}
+Business: ${payload.business}
+WhatsApp: ${payload.whatsapp}
+Service Interest: ${payload.service}
+Details: ${payload.automation}`;
       const directLink = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(directText)}`;
 
       setMessages((current) => [
@@ -459,8 +478,8 @@ function PackageCard({ pkg }) {
 
 function FloatingWhatsApp() {
   return (
-    <a href={WA_LINK} target="_blank" rel="noreferrer" className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full bg-emerald-400 px-4 py-3 text-xs font-black text-slate-950 shadow-2xl shadow-emerald-900/40 transition hover:bg-white sm:bottom-5 sm:right-5 sm:px-5 sm:text-sm">
-      <Icon name="message" /> <span className="hidden sm:inline">WhatsApp Us</span><span className="sm:hidden">Chat</span>
+    <a href={WA_LINK} target="_blank" rel="noreferrer" className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 shadow-2xl shadow-emerald-900/40 transition hover:bg-white">
+      <Icon name="message" /> WhatsApp Us
     </a>
   );
 }
@@ -509,12 +528,14 @@ export default function App() {
     };
 
     try {
-      const response = await fetch(LEAD_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error("Lead endpoint failed");
+      if (isConfigured(GOOGLE_SHEETS_WEB_APP_URL)) {
+        await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (window.fbq) window.fbq("track", "Lead");
       if (window.gtag) window.gtag("event", "generate_lead", { event_category: "Lead", event_label: payload.service });
@@ -698,24 +719,18 @@ export default function App() {
               <div className="flex items-center gap-3"><Icon name="shield" className="h-5 w-5 text-cyan-300" /> Built by Novex Digital</div>
             </div>
           </div>
-          <form className="bg-white/[0.04] p-8 pb-24 md:p-12 md:pb-12" onSubmit={handleSubmit}>
+          <form className="bg-white/[0.04] p-8 md:p-12" onSubmit={handleSubmit}>
             <div className="grid gap-4">
-              <label className="text-sm text-slate-300" htmlFor="name">Your name</label>
-              <input id="name" required name="name" placeholder="Your name" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-300/50" />
-              <label className="text-sm text-slate-300" htmlFor="business">Business name</label>
-              <input id="business" required name="business" placeholder="Business name" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-300/50" />
-              <label className="text-sm text-slate-300" htmlFor="whatsapp">WhatsApp number</label>
-              <input id="whatsapp" required name="whatsapp" placeholder="WhatsApp number" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-300/50" />
-              <label className="text-sm text-slate-300" htmlFor="service">Service needed</label>
-              <select id="service" name="service" defaultValue="Website + WhatsApp AI" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-slate-300 outline-none focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-300/50">
+              <input required name="name" placeholder="Your name" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60" />
+              <input required name="business" placeholder="Business name" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60" />
+              <input required name="whatsapp" placeholder="WhatsApp number" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60" />
+              <select name="service" defaultValue="Website + WhatsApp AI" className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-slate-300 outline-none focus:border-cyan-300/60">
                 <option>Website + WhatsApp AI</option>
                 <option>WhatsApp AI only</option>
                 <option>Business automation</option>
                 <option>Not sure yet</option>
               </select>
-              <label className="text-sm text-slate-300" htmlFor="automation">What do you want to improve or automate?</label>
-              <textarea id="automation" name="automation" placeholder="What do you want to improve or automate?" rows={4} className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-300/50" />
-              <p className="text-xs leading-6 text-slate-400">By submitting, you agree that Novex Digital can contact you on WhatsApp about your request.</p>
+              <textarea name="automation" placeholder="What do you want to improve or automate?" rows={4} className="rounded-2xl border border-white/10 bg-slate-950/70 px-5 py-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-300/60" />
               {formSent ? <p className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-3 text-sm text-emerald-200">Request captured. Your lead has been sent to Novex Digital.</p> : null}
               {formError ? <p className="rounded-2xl border border-rose-300/20 bg-rose-300/10 px-5 py-3 text-sm text-rose-200">{formError}</p> : null}
               <button type="submit" className="rounded-2xl bg-cyan-300 px-6 py-4 font-black text-slate-950 transition hover:bg-white">Submit request</button>
@@ -725,7 +740,7 @@ export default function App() {
         </div>
       </section>
 
-    <footer className="relative border-t border-white/10 px-5 py-8 text-center text-sm text-slate-500">
+      <footer className="relative border-t border-white/10 px-5 py-8 text-center text-sm text-slate-500">
         © {year} Novex Digital. Connect. Automate. Grow.
       </footer>
     </main>
