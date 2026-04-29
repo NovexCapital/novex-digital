@@ -725,6 +725,9 @@ export default function App() {
         </div>
       </section>
 
-      <footer className="relative border-t border-white/10 px-5 py-8 text-center text-sm text-slate-500">
+    <footer className="relative border-t border-white/10 px-5 py-8 text-center text-sm text-slate-500">
         © {year} Novex Digital. Connect. Automate. Grow.
       </footer>
+    </main>
+  );
+}
