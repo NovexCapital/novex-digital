@@ -2,7 +2,10 @@
   "rewrites": [
     { "source": "/crm", "destination": "/crm/index.html" },
     { "source": "/crm/", "destination": "/crm/index.html" },
-    { "source": "/((?!api/|crm/|assets/|Favicon).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/|crm/|assets/|styles.css|script.js|Favicon).*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
