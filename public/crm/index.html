@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#111827">
+    <title>Novex CRM</title>
+    <link rel="manifest" href="/crm/manifest.json">
+    <link rel="icon" href="/crm/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/crm/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar"><div><p class="eyebrow">Novex CRM</p><h1>Lead Desk</h1></div><button class="icon-button" id="installButton" type="button" aria-label="Install app" title="Install app">+</button></header>
+      <section class="sync-strip" aria-live="polite"><div><span class="status-dot" id="statusDot"></span><span id="syncStatus">Ready to sync</span></div><button class="text-button" id="syncButton" type="button">Sync</button></section>
+      <section class="metrics" aria-label="Lead summary"><article><span id="newCount">0</span><p>New</p></article><article><span id="hotCount">0</span><p>Hot</p></article><article><span id="todayCount">0</span><p>Today</p></article></section>
+      <section class="controls" aria-label="Lead filters"><input id="searchInput" type="search" placeholder="Search leads" autocomplete="off"><div class="segments" role="tablist" aria-label="Lead status"><button class="segment active" type="button" data-filter="all">All</button><button class="segment" type="button" data-filter="new">New</button><button class="segment" type="button" data-filter="contacted">Contacted</button><button class="segment" type="button" data-filter="won">Won</button></div></section>
+      <section class="lead-list" id="leadList" aria-label="Leads"></section>
+    </main>
+    <button class="fab" id="newLeadButton" type="button" aria-label="Add lead" title="Add lead">+</button>
+    <dialog id="leadDialog"><form method="dialog" class="lead-form" id="leadForm"><header><h2>Add Lead</h2><button class="icon-button ghost" value="cancel" type="submit" aria-label="Close" title="Close">x</button></header><label>Name<input name="name" required placeholder="Customer name"></label><label>Phone<input name="phone" inputmode="tel" placeholder="+27..."></label><label>Source<input name="source" placeholder="Website, WhatsApp, referral"></label><label>Value<input name="value" inputmode="numeric" placeholder="25000"></label><label>Notes<textarea name="notes" rows="3" placeholder="What changed?"></textarea></label><button class="primary-button" value="default" type="submit">Save Lead</button></form></dialog>
+    <script src="/crm/app.js" defer></script>
+  </body>
+</html>
