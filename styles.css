@@ -263,6 +263,24 @@ h3 {
   margin-top: 34px;
 }
 
+.expertise-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 720px;
+  margin-top: 24px;
+}
+
+.expertise-pills span {
+  padding: 9px 12px;
+  border: 1px solid rgba(93, 242, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(93, 242, 255, 0.08);
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
 .command-panel {
   position: relative;
   padding: 18px;
@@ -615,6 +633,17 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(93, 242, 255, 0.09);
 }
 
+input[type="hidden"] {
+  display: none;
+}
+
+.form-note {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .site-footer {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -677,6 +706,10 @@ textarea:focus {
     padding-top: 124px;
   }
 
+  .command-panel {
+    max-width: 620px;
+  }
+
   .section-heading {
     position: static;
   }
@@ -700,7 +733,42 @@ textarea:focus {
   }
 
   h1 {
-    font-size: clamp(3rem, 16vw, 4.3rem);
+    font-size: clamp(2.35rem, 12vw, 3.55rem);
+    line-height: 0.98;
+  }
+
+  h2 {
+    font-size: clamp(1.85rem, 9vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .site-header {
+    top: 8px;
+    min-height: 62px;
+    margin-top: 0;
+    padding: 9px 10px;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .hero {
+    gap: 28px;
+    padding-top: 104px;
+    padding-bottom: 48px;
+  }
+
+  .hero-text,
+  .section-shell p {
+    font-size: 0.98rem;
+    line-height: 1.62;
+  }
+
+  .expertise-pills span {
+    flex: 1 1 calc(50% - 10px);
+    text-align: center;
   }
 
   .hero-actions,
@@ -712,6 +780,20 @@ textarea:focus {
   .ai-band,
   .contact-form {
     padding: 16px;
+  }
+
+  .command-panel {
+    width: 100%;
+  }
+
+  .orbit-map {
+    height: 190px;
+  }
+
+  .contact-section,
+  .split {
+    gap: 30px;
+    padding-bottom: 64px;
   }
 
   .service-grid,
