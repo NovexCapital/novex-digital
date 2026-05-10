@@ -19,13 +19,13 @@ function resizeCanvas() {
   canvas.style.height = `${height}px`;
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-  const count = Math.min(92, Math.max(34, Math.floor(width / 18)));
+  const count = Math.min(78, Math.max(30, Math.floor(width / 22)));
   nodes = Array.from({ length: count }, () => ({
     x: Math.random() * width,
     y: Math.random() * height,
-    vx: (Math.random() - 0.5) * 0.35,
-    vy: (Math.random() - 0.5) * 0.35,
-    r: Math.random() * 1.8 + 0.8,
+    vx: (Math.random() - 0.5) * 0.24,
+    vy: (Math.random() - 0.5) * 0.24,
+    r: Math.random() * 1.5 + 0.7,
   }));
 }
 
@@ -43,7 +43,7 @@ function drawField() {
 
     ctx.beginPath();
     ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(93, 242, 255, 0.46)";
+    ctx.fillStyle = "rgba(107, 216, 255, 0.38)";
     ctx.fill();
   }
 
@@ -51,15 +51,13 @@ function drawField() {
     for (let j = i + 1; j < nodes.length; j += 1) {
       const a = nodes[i];
       const b = nodes[j];
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      const distance = Math.hypot(dx, dy);
+      const distance = Math.hypot(a.x - b.x, a.y - b.y);
 
-      if (distance < 145) {
+      if (distance < 132) {
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
-        ctx.strokeStyle = `rgba(99, 240, 189, ${0.12 * (1 - distance / 145)})`;
+        ctx.strokeStyle = `rgba(121, 242, 190, ${0.1 * (1 - distance / 132)})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }
