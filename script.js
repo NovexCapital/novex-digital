@@ -1,6 +1,8 @@
 const header = document.querySelector(".site-header");
 const menuToggle = document.querySelector(".menu-toggle");
 const canvas = document.querySelector("#neural-field");
+const contactForm = document.querySelector(".contact-form");
+const formStatus = document.querySelector(".form-status");
 const ctx = canvas.getContext("2d");
 
 let width = 0;
@@ -83,6 +85,26 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Open menu");
   });
+});
+
+contactForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  formStatus.textContent = "Sending...";
+
+  try {
+    const response = await fetch(contactForm.action, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify(Object.fromEntries(new FormData(contactForm).entries()))
+    });
+
+    if (!response.ok) throw new Error("Could not submit the brief.");
+
+    contactForm.reset();
+    formStatus.textContent = "Received. Novex will follow up shortly.";
+  } catch {
+    formStatus.textContent = "Something went wrong. Please email info@novexdigital.co.za.";
+  }
 });
 
 window.addEventListener("scroll", updateHeaderState, { passive: true });

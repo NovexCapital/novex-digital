@@ -196,11 +196,9 @@
             <span>South Africa</span>
           </div>
         </div>
-        <form class="contact-form" action="https://formsubmit.co/info@novexdigital.co.za" method="POST">
-          <input type="hidden" name="_subject" value="New Novex Digital website enquiry" />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="hidden" name="_next" value="https://novexdigital.co.za/#contact" />
+        <form class="contact-form" action="/api/leads" method="POST">
+          <input type="hidden" name="source" value="Novex Digital Website" />
+          <input type="hidden" name="status" value="new" />
           <label>
             Name
             <input name="name" type="text" autocomplete="name" required />
@@ -210,9 +208,22 @@
             <input name="email" type="email" autocomplete="email" required />
           </label>
           <label>
+            Phone
+            <input name="phone" type="tel" autocomplete="tel" />
+          </label>
+          <label>
+            Company
+            <input name="company" type="text" autocomplete="organization" />
+          </label>
+          <label>
+            Service interest
+            <input name="service" type="text" placeholder="CRM, website, automation, dashboard" />
+          </label>
+          <label>
             What should the system improve?
             <textarea name="message" rows="5" required></textarea>
           </label>
+          <p class="form-status" aria-live="polite"></p>
           <button class="button primary" type="submit">Send project brief</button>
         </form>
       </section>
