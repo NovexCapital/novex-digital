@@ -11,14 +11,72 @@
   </head>
   <body>
     <main class="app-shell">
-      <header class="topbar"><div><p class="eyebrow">Novex CRM</p><h1>Lead Desk</h1></div><button class="icon-button" id="installButton" type="button" aria-label="Install app" title="Install app">+</button></header>
-      <section class="sync-strip" aria-live="polite"><div><span class="status-dot" id="statusDot"></span><span id="syncStatus">Ready to sync</span></div><button class="text-button" id="syncButton" type="button">Sync</button></section>
-      <section class="metrics" aria-label="Lead summary"><article><span id="newCount">0</span><p>New</p></article><article><span id="hotCount">0</span><p>Hot</p></article><article><span id="todayCount">0</span><p>Today</p></article></section>
-      <section class="controls" aria-label="Lead filters"><input id="searchInput" type="search" placeholder="Search leads" autocomplete="off"><div class="segments" role="tablist" aria-label="Lead status"><button class="segment active" type="button" data-filter="all">All</button><button class="segment" type="button" data-filter="new">New</button><button class="segment" type="button" data-filter="contacted">Contacted</button><button class="segment" type="button" data-filter="won">Won</button></div></section>
-      <section class="lead-list" id="leadList" aria-label="Leads"></section>
+      <header class="topbar">
+        <a class="brand" href="/">
+          <span>N</span>
+          <strong>Novex CRM</strong>
+        </a>
+        <div class="top-actions">
+          <button class="icon-button" id="tokenButton" type="button" aria-label="API token" title="API token">#</button>
+          <button class="icon-button" id="installButton" type="button" aria-label="Install app" title="Install app" hidden>+</button>
+        </div>
+      </header>
+
+      <section class="hero-bar">
+        <div>
+          <p class="eyebrow">Command center</p>
+          <h1>Pipeline</h1>
+        </div>
+        <button class="primary-button" id="newRecordButton" type="button">New</button>
+      </section>
+
+      <section class="sync-strip" aria-live="polite">
+        <div><span class="status-dot" id="statusDot"></span><span id="syncStatus">Ready</span></div>
+        <button class="text-button" id="syncButton" type="button">Sync</button>
+      </section>
+
+      <section class="metrics" aria-label="CRM summary">
+        <article><span id="newLeads">0</span><p>New leads</p></article>
+        <article><span id="pipelineValue">R0</span><p>Pipeline</p></article>
+        <article><span id="openTasks">0</span><p>Open tasks</p></article>
+        <article><span id="contactsCount">0</span><p>Contacts</p></article>
+      </section>
+
+      <section class="controls" aria-label="CRM controls">
+        <input id="searchInput" type="search" placeholder="Search" autocomplete="off">
+        <div class="segments" role="tablist" aria-label="CRM views">
+          <button class="segment active" type="button" data-view="leads">Leads</button>
+          <button class="segment" type="button" data-view="deals">Deals</button>
+          <button class="segment" type="button" data-view="tasks">Tasks</button>
+          <button class="segment" type="button" data-view="contacts">Contacts</button>
+        </div>
+      </section>
+
+      <section class="record-list" id="recordList" aria-label="CRM records"></section>
     </main>
-    <button class="fab" id="newLeadButton" type="button" aria-label="Add lead" title="Add lead">+</button>
-    <dialog id="leadDialog"><form method="dialog" class="lead-form" id="leadForm"><header><h2>Add Lead</h2><button class="icon-button ghost" value="cancel" type="submit" aria-label="Close" title="Close">x</button></header><label>Name<input name="name" required placeholder="Customer name"></label><label>Phone<input name="phone" inputmode="tel" placeholder="+27..."></label><label>Source<input name="source" placeholder="Website, WhatsApp, referral"></label><label>Value<input name="value" inputmode="numeric" placeholder="25000"></label><label>Notes<textarea name="notes" rows="3" placeholder="What changed?"></textarea></label><button class="primary-button" value="default" type="submit">Save Lead</button></form></dialog>
+
+    <dialog id="recordDialog">
+      <form method="dialog" class="record-form" id="recordForm">
+        <header>
+          <h2 id="dialogTitle">New record</h2>
+          <button class="icon-button ghost" value="cancel" type="submit" aria-label="Close" title="Close">x</button>
+        </header>
+        <div id="recordFields"></div>
+        <button class="primary-button" value="default" type="submit">Save</button>
+      </form>
+    </dialog>
+
+    <dialog id="tokenDialog">
+      <form method="dialog" class="record-form" id="tokenForm">
+        <header>
+          <h2>API token</h2>
+          <button class="icon-button ghost" value="cancel" type="submit" aria-label="Close" title="Close">x</button>
+        </header>
+        <label>Token<input id="tokenInput" name="token" autocomplete="off"></label>
+        <button class="primary-button" value="default" type="submit">Save</button>
+      </form>
+    </dialog>
+
     <script src="/crm/app.js" defer></script>
   </body>
 </html>
