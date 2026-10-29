@@ -45,7 +45,7 @@ function drawField() {
 
     ctx.beginPath();
     ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(107, 216, 255, 0.38)";
+    ctx.fillStyle = "rgba(96, 165, 250, 0.42)";
     ctx.fill();
   }
 
@@ -59,7 +59,7 @@ function drawField() {
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
-        ctx.strokeStyle = `rgba(121, 242, 190, ${0.1 * (1 - distance / 132)})`;
+        ctx.strokeStyle = `rgba(167, 139, 250, ${0.12 * (1 - distance / 132)})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }
